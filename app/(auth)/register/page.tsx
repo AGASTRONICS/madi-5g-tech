@@ -52,8 +52,7 @@ export default function RegisterPage() {
   });
 
   function onSubmit(data: RegisterFormValues) {
-    const { confirm_password: _omit, ...payload } = data;
-    registerMutation.mutate(payload);
+    registerMutation.mutate(data);
   }
 
   const apiErrorMessage = registerMutation.isError
@@ -101,7 +100,7 @@ export default function RegisterPage() {
                 id="name"
                 type="text"
                 autoComplete="name"
-                placeholder="Ada Johnson"
+                placeholder="Abdulsamad Opeyemi"
                 className={`pl-10 ${fieldClass}`}
                 aria-invalid={!!errors.name}
                 disabled={registerMutation.isPending}
@@ -153,7 +152,7 @@ export default function RegisterPage() {
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder="you@gmail.com"
               className={`pl-10 ${fieldClass}`}
               aria-invalid={!!errors.email}
               disabled={registerMutation.isPending}

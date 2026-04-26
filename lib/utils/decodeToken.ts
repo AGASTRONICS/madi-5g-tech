@@ -10,7 +10,18 @@ import type { TokenPayload } from "@/types/auth.types";
  */
 export function decodeToken(token: string): TokenPayload | null {
   try {
-    return jwtDecode<TokenPayload>(token);
+    const decoded = jwtDecode<Partial<TokenPayload>>(token);
+
+    // Require sub and exp; is_admin defaults to false if missing
+    if (!decoded.sub || decoded.exp === undefined) {
+      return null;
+    }
+
+    return {
+      sub: decoded.sub,
+      exp: decoded.exp,
+      is_admin: decoded.is_admin ?? false,
+    };
   } catch {
     return null;
   }

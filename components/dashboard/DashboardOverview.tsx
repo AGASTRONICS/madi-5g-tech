@@ -189,8 +189,9 @@ export function DashboardOverview() {
     );
   }
 
-  const { stats, recent_transactions, user } = data!;
-  const firstName = user.name.split(" ")[0];
+  const recent_transactions = data!.recent_txn ?? [];
+  const email = data!.email;
+  const firstName = email.split("@")[0] ?? "User";
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -217,10 +218,10 @@ export function DashboardOverview() {
               <span
                 className={cn(
                   "font-semibold",
-                  user.is_active ? "text-green-300" : "text-red-300",
+                  data?.is_active ? "text-green-300" : "text-red-300",
                 )}
               >
-                {user.is_active ? "active" : "suspended"}
+                {data?.is_active ? "active" : "suspended"}
               </span>{" "}
               — all services available.
             </p>
@@ -232,7 +233,7 @@ export function DashboardOverview() {
               Wallet balance
             </p>
             <p className="text-3xl font-bold tabular-nums">
-              {fmt(stats.wallet_balance)}
+              {fmt(data!.balance)}
             </p>
             {isFetching && (
               <p className="text-xs text-blue-200">Refreshing…</p>
@@ -246,32 +247,32 @@ export function DashboardOverview() {
         {[
           {
             label: "Wallet Balance",
-            value: fmt(stats.wallet_balance),
+            value: fmt(data!.balance),
             sub: "Available funds",
             icon: Wallet,
             iconBg: "bg-blue-50 dark:bg-blue-950/40",
             iconColor: "text-blue-600 dark:text-blue-400",
           },
           {
-            label: "Total Spent",
-            value: fmt(stats.total_spent),
-            sub: "All time",
+            label: "Bonus",
+            value: fmt(data!.bonus),
+            sub: "Promotional credit",
             icon: TrendingDown,
             iconBg: "bg-red-50 dark:bg-red-950/40",
             iconColor: "text-red-500 dark:text-red-400",
           },
           {
-            label: "Monthly Spend",
-            value: fmt(stats.monthly_spent),
-            sub: "This month",
+            label: "Today's Success",
+            value: data!.total_success_today.toLocaleString(),
+            sub: "Successful transactions",
             icon: CalendarDays,
             iconBg: "bg-purple-50 dark:bg-purple-950/40",
             iconColor: "text-purple-600 dark:text-purple-400",
           },
           {
-            label: "Transactions",
-            value: stats.total_transactions.toLocaleString(),
-            sub: "Total count",
+            label: "Today's Total",
+            value: (data!.total_success_today + data!.total_failed_today + data!.total_pending_today).toLocaleString(),
+            sub: "All transactions",
             icon: ArrowRightLeft,
             iconBg: "bg-green-50 dark:bg-green-950/40",
             iconColor: "text-green-600 dark:text-green-400",

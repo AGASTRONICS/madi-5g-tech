@@ -1,10 +1,14 @@
 // ---- Dashboard -------------------------------------------------------
 
-export interface DashboardStats {
-  total_spent: number;
-  total_transactions: number;
-  wallet_balance: number;
-  monthly_spent: number;
+export interface DashboardData {
+  email: string;
+  balance: number;
+  is_active: boolean;
+  bonus: number;
+  total_success_today: number;
+  total_failed_today: number;
+  total_pending_today: number;
+  recent_txn: RecentTransaction[];
 }
 
 export interface RecentTransaction {
@@ -16,15 +20,3 @@ export interface RecentTransaction {
   description: string;
 }
 
-export interface DashboardData {
-  stats: DashboardStats;
-  recent_transactions: RecentTransaction[];
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    number: string;
-    is_active: boolean;
-    is_admin: boolean;
-  };
-}

@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtDecode } from "jwt-decode";
-import type { TokenPayload } from "@/types/auth.types";
 
 // ---- Route configuration --------------------------------------------
 
@@ -9,22 +7,21 @@ const PUBLIC_PATHS = ["/login", "/register"];
 const ADMIN_PATH_PREFIX = "/admin";
 const SESSION_COOKIE = "vtu_session";
 
-// ---- Helpers --------------------------------------------------------
-
-function getTokenFromRequest(request: NextRequest): string | null {
-  return request.cookies.get(SESSION_COOKIE)?.value ?? null;
+interface SessionData {
+  is_admin: boolean;
 }
 
-function decodeTokenSafe(token: string): TokenPayload | null {
+// ---- Helpers --------------------------------------------------------
+
+function getSessionFromRequest(request: NextRequest): SessionData | null {
   try {
-    return jwtDecode<TokenPayload>(token);
+    const cookieValue = request.cookies.get(SESSION_COOKIE)?.value;
+    if (!cookieValue) return null;
+    const parsed = JSON.parse(cookieValue) as SessionData;
+    return parsed.is_admin !== undefined ? parsed : null;
   } catch {
     return null;
   }
-}
-
-function isTokenExpired(payload: TokenPayload): boolean {
-  return payload.exp * 1000 < Date.now();
 }
 
 // ---- Proxy ----------------------------------------------------------
@@ -32,9 +29,8 @@ function isTokenExpired(payload: TokenPayload): boolean {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const token = getTokenFromRequest(request);
-  const payload = token ? decodeTokenSafe(token) : null;
-  const isAuthenticated = payload !== null && !isTokenExpired(payload);
+  const session = getSessionFromRequest(request);
+  const isAuthenticated = session !== null;
 
   // 1. Authenticated users visiting login/register → send to dashboard.
   if (isAuthenticated && PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
@@ -56,7 +52,7 @@ export function proxy(request: NextRequest) {
   if (
     isAuthenticated &&
     pathname.startsWith(ADMIN_PATH_PREFIX) &&
-    !payload?.is_admin
+    !session?.is_admin
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
